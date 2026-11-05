@@ -21,8 +21,9 @@ class GlyphMatrixController(context: Context) {
         override fun onServiceConnected(componentName: ComponentName) {
             val m = manager ?: return
             try {
-                connected = m.register(Glyph.DEVICE_25111p)
-                if (connected && foreground) renderMood(currentMood)
+                m.register(Glyph.DEVICE_25111p)
+                connected = true
+                if (foreground) renderMood(currentMood)
             } catch (e: Exception) {
                 Log.w("GhostyGlyph", "Glyph registration failed", e)
                 connected = false
