@@ -32,6 +32,11 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Download official Nothing Glyph Matrix SDK
+        run: |
+          mkdir -p app/libs
+          curl -fL https://raw.githubusercontent.com/Nothing-Developer-Programme/GlyphMatrix-Developer-Kit/main/glyph-matrix-sdk-2.0.aar -o app/libs/glyph-matrix-sdk-2.0.aar
+
       - name: Build debug APK
         run: gradle --no-daemon assembleDebug
 
