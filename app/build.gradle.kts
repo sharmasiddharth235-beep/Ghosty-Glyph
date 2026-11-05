@@ -15,3 +15,7 @@ android {
         versionName = "1.0"
     }
 }
+
+dependencies {
+    implementation(files("libs/glyph-matrix-sdk-2.0.aar"))
+}
