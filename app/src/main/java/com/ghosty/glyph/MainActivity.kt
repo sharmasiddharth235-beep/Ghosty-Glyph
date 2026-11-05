@@ -29,6 +29,7 @@ class MainActivity : Activity(), SensorEventListener {
     private var lastZ = 0f
     private lateinit var ghostView: GhostView
     private lateinit var moodLabel: TextView
+    private lateinit var glyphController: GlyphMatrixController
     private val idleHandler = android.os.Handler()
     private val idleTask = object : Runnable {
         override fun run() {
@@ -60,7 +61,7 @@ class MainActivity : Activity(), SensorEventListener {
         accel = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
 
         val root = FrameLayout(this).apply { setBackgroundColor(Color.rgb(16, 16, 16)) }
-        ghostView = GhostView(this) { mood -> moodLabel.text = mood }
+        ghostView = GhostView(this) { mood -> moodLabel.text = mood; if (::glyphController.isInitialized) glyphController.showMood(mood) }
         root.addView(ghostView, FrameLayout.LayoutParams(-1, -1))
 
         val title = TextView(this).apply {
@@ -94,23 +95,28 @@ class MainActivity : Activity(), SensorEventListener {
         root.addView(hint, hintLp)
         ghostView.setOnClickListener { ghostView.playTapReaction() }
         setContentView(root)
+        glyphController = GlyphMatrixController(this)
+        glyphController.init()
         registerReceiver(batteryReceiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
     }
 
     override fun onResume() {
         super.onResume()
         accel?.let { sensorManager.registerListener(this, it, SensorManager.SENSOR_DELAY_GAME) }
+        if (::glyphController.isInitialized) glyphController.onForeground()
         idleHandler.postDelayed(idleTask, 5000L)
     }
 
     override fun onPause() {
         super.onPause()
         sensorManager.unregisterListener(this)
+        if (::glyphController.isInitialized) glyphController.onBackground()
         idleHandler.removeCallbacks(idleTask)
     }
 
     override fun onDestroy() {
         try { unregisterReceiver(batteryReceiver) } catch (_: Exception) {}
+        if (::glyphController.isInitialized) glyphController.release()
         super.onDestroy()
     }
 
